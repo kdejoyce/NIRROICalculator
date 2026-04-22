@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "config_version": "1.1.0",
+    "calculator_build_version": "1.1.0",
+    "last_calibrated_date": "2026-03-18",
+    "product": "Netwrix Identity Recovery",
+    "scope": "AD forest recovery only — domain controllers and core AD services (FSMO, replication, SYSVOL, DNS). Does not automate credential hygiene (KRBTGT rotation, privileged account resets, service account resets) or dependent service restoration (ADFS, Azure AD Connect, PKI, LDAP-dependent applications).",
+    "notes": "Phase baseline ranges calibrated against AD recovery engagement data. Ranges are [conservative_hours, aggressive_hours]. Expected = midpoint."
+  },
+  "environment_size_bands": {
+    "small":      { "label": "Small",      "dc_range": "1–5",   "domain_range": "1",  "site_range": "1–3",   "description": "Up to 5 domain controllers · Single domain · 1–3 office locations" },
+    "medium":     { "label": "Medium",     "dc_range": "6–20",  "domain_range": "1–3","site_range": "4–10",  "description": "6–20 domain controllers · Up to 3 domains · 4–10 locations" },
+    "large":      { "label": "Large",      "dc_range": "21–60", "domain_range": "3–8","site_range": "10–30", "description": "21–60 domain controllers · 3–8 domains · 10–30 locations" },
+    "enterprise": { "label": "Enterprise", "dc_range": "61+",   "domain_range": "8+", "site_range": "30+",   "description": "60+ domain controllers · 8+ domains · 30+ locations" }
+  },
+  "readiness_levels": {
+    "limited":    { "label": "Limited",    "baseline_multiplier": 1.4, "with_tool_multiplier": 1.1, "description": "No documented recovery runbook · Backups rarely or never tested · Fewer than 2 staff with AD recovery experience" },
+    "developing": { "label": "Developing", "baseline_multiplier": 1.0, "with_tool_multiplier": 0.9, "description": "Some recovery documentation · Backups tested more than a year ago · 1–2 experienced staff" },
+    "mature":     { "label": "Mature",     "baseline_multiplier": 0.75,"with_tool_multiplier": 0.8, "description": "Documented runbook · Backup restore tested within the last year · 3+ experienced staff" }
+  },
+  "phases": [
+    {
+      "phase_id": "containment",
+      "label": "Containment & Decision to Restore",
+      "description": "Isolating affected systems and deciding on restore vs. rebuild path",
+      "driven_by": "readiness",
+      "baseline_hours_by_size": {
+        "small":      [2, 4],
+        "medium":     [4, 8],
+        "large":      [6, 12],
+        "enterprise": [8, 16]
+      },
+      "with_tool_hours_by_size": {
+        "small":      [1, 2],
+        "medium":     [1, 3],
+        "large":      [2, 4],
+        "enterprise": [2, 6]
+      }
+    },
+    {
+      "phase_id": "restore_initial_dcs",
+      "label": "Restore Domain Controllers",
+      "description": "Building a clean recovery environment and restoring domain controllers from backup",
+      "driven_by": "size",
+      "baseline_hours_by_size": {
+        "small":      [4, 8],
+        "medium":     [8, 18],
+        "large":      [18, 36],
+        "enterprise": [36, 72]
+      },
+      "with_tool_hours_by_size": {
+        "small":      [1, 2],
+        "medium":     [2, 4],
+        "large":      [4, 8],
+        "enterprise": [6, 14]
+      }
+    },
+    {
+      "phase_id": "reestablish_core_ad",
+      "label": "Re-establish Core AD Services",
+      "description": "Restoring FSMO roles, AD replication, SYSVOL, and DNS so the directory is operational",
+      "driven_by": "size",
+      "baseline_hours_by_size": {
+        "small":      [4, 8],
+        "medium":     [8, 20],
+        "large":      [20, 48],
+        "enterprise": [48, 96]
+      },
+      "with_tool_hours_by_size": {
+        "small":      [1, 2],
+        "medium":     [2, 5],
+        "large":      [4, 10],
+        "enterprise": [8, 20]
+      }
+    },
+    {
+      "phase_id": "credential_hygiene",
+      "label": "Credential Hygiene",
+      "description": "Resetting privileged accounts, service accounts, and rotating KRBTGT — required after every forest recovery. Not automated by Identity Recovery; time is identical with or without the tool.",
+      "driven_by": "size_and_readiness",
+      "tool_benefit": false,
+      "baseline_hours_by_size": {
+        "small":      [4, 8],
+        "medium":     [8, 16],
+        "large":      [16, 32],
+        "enterprise": [24, 48]
+      },
+      "with_tool_hours_by_size": {
+        "small":      [4, 8],
+        "medium":     [8, 16],
+        "large":      [16, 32],
+        "enterprise": [24, 48]
+      }
+    },
+    {
+      "phase_id": "validation_cutover",
+      "label": "Validation & AD Operational",
+      "description": "Confirming AD is healthy and handing off to teams to begin restoring dependent services",
+      "driven_by": "readiness",
+      "baseline_hours_by_size": {
+        "small":      [2, 4],
+        "medium":     [4, 8],
+        "large":      [8, 16],
+        "enterprise": [12, 24]
+      },
+      "with_tool_hours_by_size": {
+        "small":      [1, 2],
+        "medium":     [2, 4],
+        "large":      [3, 6],
+        "enterprise": [4, 8]
+      }
+    }
+  ],
+  "defaults": {
+    "workforce_impact_percent": 0.85,
+    "productivity_loss_factor": 0.40,
+    "fully_loaded_hourly_rate_usd": 65,
+    "internal_ir_hourly_rate_usd": 125,
+    "external_si_hourly_rate_usd": 250,
+    "recovery_team_size_by_size": {
+      "small": 2,
+      "medium": 4,
+      "large": 6,
+      "enterprise": 10
+    },
+    "external_si_baseline_hours_by_size": {
+      "small": 40,
+      "medium": 80,
+      "large": 160,
+      "enterprise": 320
+    },
+    "external_si_with_tool_hours_by_size": {
+      "small": 8,
+      "medium": 16,
+      "large": 32,
+      "enterprise": 64
+    },
+    "product_cost_per_user_usd": 12.50,
+    "incident_probability_default": 0.05,
+    "incident_probability_levels": {
+      "low":      { "label": "Low",      "value": 0.02, "description": "~once per 50 years · Strong security posture, mature controls" },
+      "moderate": { "label": "Moderate", "value": 0.05, "description": "~once per 20 years · Average enterprise risk profile" },
+      "elevated": { "label": "Elevated", "value": 0.10, "description": "~once per 10 years · Known gaps or prior AD incidents" },
+      "high":     { "label": "High",     "value": 0.20, "description": "~once per 5 years · Active threat exposure or recent breach" }
+    },
+    "working_hours_per_day": 8,
+    "working_days_per_year": 250
+  },
+  "range_multipliers": {
+    "conservative": { "time": 1.0, "cost": 0.7 },
+    "expected":     { "time": 1.0, "cost": 1.0 },
+    "aggressive":   { "time": 1.0, "cost": 1.3 }
+  },
+  "tco_defaults": {
+    "amortization_years": 3,
+    "fte_hours_per_year": 2080,
+    "implementation_cost_usd": 5000,
+    "infrastructure_annual_usd": 1500,
+    "storage_annual_by_size": {
+      "small": 120, "medium": 240, "large": 360, "enterprise": 600
+    },
+    "fte_admin_fraction_by_size": {
+      "small": 0.02, "medium": 0.07, "large": 0.15, "enterprise": 0.25
+    },
+    "restore_test_hours_by_size": {
+      "small": 8, "medium": 16, "large": 24, "enterprise": 40
+    }
+  }
+}
