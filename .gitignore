@@ -31,6 +31,8 @@ pnpm-debug.log*
 
 # Internal development documents
 CLAUDE_CODE_TIME_SAVINGS.md
+docs/
+tests/
 
 # Claude agent session files
 .claude/
