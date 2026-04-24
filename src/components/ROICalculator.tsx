@@ -72,15 +72,6 @@ export default function ROICalculator() {
 
   const canCalculate = inputs.tier1.employees_total > 0;
 
-  const [copied, setCopied] = useState(false);
-  function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      track('copy_link');
-    });
-  }
-
   return (
     <div className="max-w-5xl mx-auto px-4 mobile:px-6 tabletm:px-8 py-12">
       {/* Header */}
@@ -88,7 +79,7 @@ export default function ROICalculator() {
         <div className="inline-flex items-center gap-2 bg-vigilant-blue/10 border border-vigilant-blue/20 text-vigilant-blue text-f-g font-semibold font-syne px-3 py-1.5 rounded-a mb-4">
           Identity Recovery
         </div>
-        <h1 className="text-f-b tablets:text-f-a font-bold font-hubot text-nightwatch mb-3">
+        <h1 className="text-3xl sm:text-4xl font-bold font-hubot text-nightwatch mb-3">
           How much could you save with faster AD recovery?
         </h1>
         <p className="text-f-f text-text-muted font-syne max-w-2xl">
@@ -134,7 +125,7 @@ export default function ROICalculator() {
           onChange={(tco) => handleInputChange({ ...inputs, tco })}
         />
 
-        {/* Calculate button + copy link */}
+        {/* Calculate button */}
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
@@ -144,29 +135,6 @@ export default function ROICalculator() {
           >
             Calculate My ROI →
           </button>
-          {canCalculate && (
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="inline-flex items-center gap-2 text-f-f font-syne text-text-faint hover:text-text-muted transition-standard"
-            >
-              {copied ? (
-                <>
-                  <svg className="w-4 h-4 text-beacon-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-beacon-green">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                  Copy shareable link
-                </>
-              )}
-            </button>
-          )}
         </div>
         {!canCalculate && (
           <p className="text-f-g text-text-faint font-syne mt-2">Enter your employee count to get started.</p>

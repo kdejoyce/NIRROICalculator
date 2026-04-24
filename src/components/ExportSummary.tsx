@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { ROIInputs, ROIOutputs } from '../types/roi';
 import { track } from '../lib/analytics';
 
@@ -288,14 +288,11 @@ function buildPrintHTML(
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function ExportSummary({ inputs, outputs, onBack }: Props) {
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', company: '' });
-  const [submitted, setSubmitted] = useState(false);
   const [printing, setPrinting] = useState(false);
 
   function openPrintWindow() {
     setPrinting(true);
-    const html = buildPrintHTML(form, inputs, outputs);
+    const html = buildPrintHTML({ name: '', email: '', company: '' }, inputs, outputs);
     const popup = window.open('', '_blank', 'width=920,height=720');
     if (!popup) { setPrinting(false); return; }
     popup.document.open();
@@ -309,89 +306,27 @@ export default function ExportSummary({ inputs, outputs, onBack }: Props) {
     }, 1200);
   }
 
-  function handleDownloadClick() {
-    setShowForm(true);
-    track('export_started', { method: 'print' });
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    track('export_completed', { method: 'print', company: form.company });
-    setSubmitted(true);
-    openPrintWindow();
-  }
-
   return (
     <div className="mt-10 border-t border-access-white/10 pt-8">
-      {!showForm && (
-        <div className="flex flex-col items-start gap-3">
-          <button
-            onClick={handleDownloadClick}
-            className="inline-flex items-center gap-2 bg-vigilant-blue hover:bg-vigilant-blue/80 text-access-white font-semibold font-syne text-f-f px-6 py-3 rounded-a transition-standard"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            </svg>
-            Download PDF Summary
-          </button>
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-text-faint hover:text-body-text font-syne text-f-f transition-standard"
-          >
-            ← Adjust inputs
-          </button>
-        </div>
-      )}
-
-      {showForm && !submitted && (
-        <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
-          <p className="text-f-g text-access-white/50 font-syne">Enter your details to personalize your PDF summary.</p>
-          {(['name', 'email', 'company'] as const).map((field) => (
-            <input
-              key={field}
-              required
-              type={field === 'email' ? 'email' : 'text'}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              value={form[field]}
-              onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-              className="w-full bg-access-white/10 border border-access-white/15 rounded-a px-4 py-3 text-access-white placeholder-access-white/40 font-syne text-f-f focus:outline-none focus:border-vigilant-blue focus:ring-2 focus:ring-vigilant-blue/15"
-            />
-          ))}
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={printing}
-              className="bg-vigilant-blue hover:bg-vigilant-blue/80 text-access-white font-semibold font-syne text-f-f px-6 py-3 rounded-a transition-standard disabled:opacity-50"
-            >
-              {printing ? 'Preparing…' : 'Download Summary'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="text-access-white/40 hover:text-access-white font-syne text-f-f transition-standard"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {submitted && (
-        <div className="flex items-center gap-2 text-beacon-green font-syne text-f-f">
+      <div className="flex flex-col items-start gap-3">
+        <button
+          onClick={() => { track('export_started', { method: 'print' }); openPrintWindow(); }}
+          disabled={printing}
+          className="inline-flex items-center gap-2 bg-vigilant-blue hover:bg-vigilant-blue/80 text-access-white font-semibold font-syne text-f-f px-6 py-3 rounded-a transition-standard disabled:opacity-50"
+        >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          Print dialog opened.
-          <button
-            onClick={openPrintWindow}
-            disabled={printing}
-            className="underline text-beacon-green/80 ml-1 disabled:opacity-50"
-          >
-            Open again
-          </button>
-        </div>
-      )}
+          {printing ? 'Preparing…' : 'Download PDF Summary'}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-text-faint hover:text-body-text font-syne text-f-f transition-standard"
+        >
+          ← Adjust inputs
+        </button>
+      </div>
     </div>
   );
 }
