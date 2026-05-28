@@ -7,7 +7,66 @@ import Tier1Form from './Tier1Form';
 import Tier2Form from './Tier2Form';
 import TCOForm from './TCOForm';
 import ResultsPanel from './ResultsPanel';
-import ExportSummary from './ExportSummary';
+import { buildPrintHTML } from './ExportSummary';
+
+function StepCard({
+  step,
+  title,
+  subtitle,
+  optional,
+  children,
+  open,
+  onToggle,
+}: {
+  step: number;
+  title: string;
+  subtitle?: string;
+  optional?: boolean;
+  children?: React.ReactNode;
+  open?: boolean;
+  onToggle?: () => void;
+}) {
+  const headerInner = (
+    <>
+      <div className="w-6 h-6 bg-nightwatch rounded-full flex items-center justify-center text-[11px] font-bold font-syne text-access-white flex-shrink-0">
+        {step}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold font-hubot text-nightwatch leading-tight">
+          {title}
+          {optional && <span className="text-[11px] font-normal text-text-faint ml-2">Optional</span>}
+        </div>
+        {subtitle && <div className="text-[11px] text-text-faint font-syne mt-0.5">{subtitle}</div>}
+      </div>
+      {onToggle && (
+        <span className="text-text-faint text-xl leading-none flex-shrink-0">{open ? '−' : '+'}</span>
+      )}
+    </>
+  );
+
+  return (
+    <div className="bg-white border border-border shadow-[0_4px_16px_rgba(26,21,54,0.06)] rounded-a mb-4 overflow-hidden">
+      {onToggle ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          className="w-full px-6 py-[18px] border-b border-[#F3F4F6] flex items-center gap-3 hover:bg-surface-hover transition-standard text-left"
+        >
+          {headerInner}
+        </button>
+      ) : (
+        <div className="px-6 py-[18px] border-b border-[#F3F4F6] flex items-center gap-3">
+          {headerInner}
+        </div>
+      )}
+      {(onToggle ? open : true) && children && (
+        <div className="px-6 py-5">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ROICalculator() {
   const [inputs, setInputs] = useState<ROIInputs>(() => {
@@ -20,6 +79,8 @@ export default function ROICalculator() {
 
   const [submittedOutputs, setSubmittedOutputs] = useState<ReturnType<typeof calculate> | null>(null);
   const [showTier2, setShowTier2] = useState(false);
+  const [showTCO, setShowTCO] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const hasInteracted = useRef(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -70,135 +131,118 @@ export default function ROICalculator() {
     track('tier_switched', { to: next ? 'tier2' : 'tier1' });
   }
 
-  const canCalculate = inputs.tier1.employees_total > 0;
-
-  const [copied, setCopied] = useState(false);
-  function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      track('copy_link');
-    });
+  function handlePDF() {
+    if (!submittedOutputs) return;
+    setPrinting(true);
+    const html = buildPrintHTML({ name: '', email: '', company: '' }, inputs, submittedOutputs);
+    const popup = window.open('', '_blank', 'width=920,height=720');
+    if (!popup) { setPrinting(false); return; }
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
+    setTimeout(() => { popup.focus(); popup.print(); setPrinting(false); }, 1200);
+    track('export_started', { method: 'print' });
   }
 
-  return (
-    <div className="max-w-5xl mx-auto px-4 mobile:px-6 tabletm:px-8 py-12">
-      {/* Header */}
-      <div className="mb-10">
-        <div className="inline-flex items-center gap-2 bg-vigilant-blue/10 border border-vigilant-blue/20 text-vigilant-blue text-f-g font-semibold font-syne px-3 py-1.5 rounded-a mb-4">
-          Identity Recovery
-        </div>
-        <h1 className="text-f-b tablets:text-f-a font-bold font-hubot text-nightwatch mb-3">
-          How much could you save with faster AD recovery?
-        </h1>
-        <p className="text-f-f text-text-muted font-syne max-w-2xl">
-          Estimate your financial impact from reducing forest-level Active Directory recovery time after a ransomware, wiper, or domain compromise event.
-        </p>
-      </div>
+  const canCalculate = inputs.tier1.employees_total > 0;
 
-      {/* Form section */}
-      <div className="bg-surface border border-border shadow-[0_4px_16px_rgba(26,21,54,0.06)] rounded-a p-6 mobile:p-8 mb-8">
-        <h2 className="text-f-d font-semibold font-hubot text-nightwatch mb-6">Tell us about your environment</h2>
+  return (
+    <div className="max-w-[760px] mx-auto px-4 mobile:px-6 pb-16">
+      {/* Step 1: Environment Profile */}
+      <StepCard step={1} title="Environment Profile" subtitle="Your AD environment and workforce">
         <Tier1Form
           values={inputs.tier1}
           onChange={(tier1) => handleInputChange({ ...inputs, tier1 })}
         />
+      </StepCard>
 
-        {/* Customize Assumptions accordion */}
-        <div className="mb-4 bg-surface-subtle border border-border rounded-a overflow-hidden">
-          <button
-            type="button"
-            onClick={toggleTier2}
-            className="w-full flex justify-between items-center px-6 py-4 text-left hover:bg-surface-hover transition-standard"
-          >
-            <span className="text-f-f font-semibold text-nightwatch font-hubot">
-              Customize Assumptions{' '}
-              <span className="font-normal text-text-faint text-f-g ml-1">Override defaults</span>
-            </span>
-            <span className="text-text-faint text-f-d">{showTier2 ? '−' : '+'}</span>
-          </button>
-          {showTier2 && (
-            <div className="px-6 pb-6 pt-2">
-              <Tier2Form
-                values={inputs.tier2}
-                onChange={(tier2) => handleInputChange({ ...inputs, tier2 })}
-              />
-            </div>
-          )}
-        </div>
+      {/* Step 2: Customize Assumptions */}
+      <StepCard
+        step={2}
+        title="Customize Assumptions"
+        subtitle="Override default values"
+        optional
+        open={showTier2}
+        onToggle={toggleTier2}
+      >
+        <Tier2Form
+          values={inputs.tier2}
+          onChange={(tier2) => handleInputChange({ ...inputs, tier2 })}
+        />
+      </StepCard>
 
-        {/* TCO Assumptions */}
+      {/* Step 3: TCO Assumptions */}
+      <StepCard
+        step={3}
+        title="TCO Assumptions"
+        subtitle="Infrastructure and staffing costs"
+        optional
+        open={showTCO}
+        onToggle={() => setShowTCO((o) => !o)}
+      >
         <TCOForm
           values={inputs.tco}
           environmentSize={inputs.tier1.environment_size}
           onChange={(tco) => handleInputChange({ ...inputs, tco })}
         />
+      </StepCard>
 
-        {/* Calculate button + copy link */}
-        <div className="flex flex-wrap items-center gap-3">
+      {/* Submit row */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        {!submittedOutputs ? (
           <button
             type="button"
             onClick={handleCalculate}
             disabled={!canCalculate}
-            className="w-full mobile:w-auto bg-vigilant-blue hover:bg-vigilant-blue/80 disabled:opacity-40 disabled:cursor-not-allowed text-access-white font-semibold font-syne text-f-f px-10 py-3.5 rounded-a transition-standard"
+            className="ds-btn"
           >
-            Calculate My ROI →
+            Calculate My ROI
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </button>
-          {canCalculate && (
+        ) : (
+          <>
             <button
               type="button"
-              onClick={handleCopyLink}
-              className="inline-flex items-center gap-2 text-f-f font-syne text-text-faint hover:text-text-muted transition-standard"
+              onClick={() => { setSubmittedOutputs(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="ds-btn ds-btn--second"
             >
-              {copied ? (
-                <>
-                  <svg className="w-4 h-4 text-beacon-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-beacon-green">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                  Copy shareable link
-                </>
-              )}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+              Adjust Inputs
             </button>
-          )}
-        </div>
-        {!canCalculate && (
-          <p className="text-f-g text-text-faint font-syne mt-2">Enter your employee count to get started.</p>
+            <button
+              type="button"
+              onClick={handlePDF}
+              disabled={printing}
+              className="ds-btn ds-btn--third"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="6 9 6 2 18 2 18 9" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect x="6" y="14" width="12" height="8" />
+              </svg>
+              {printing ? 'Preparing…' : 'Download PDF Summary'}
+            </button>
+          </>
         )}
       </div>
+      {!submittedOutputs && !canCalculate && (
+        <p className="text-f-g text-text-faint font-syne mt-2">Enter your employee count to get started.</p>
+      )}
 
       {/* Results section — only shown after Calculate is clicked */}
       {submittedOutputs && (
-        <div ref={resultsRef} className="bg-nightwatch border border-access-white/10 rounded-a p-6 mobile:p-8">
+        <div ref={resultsRef} className="mt-8 bg-nightwatch border border-access-white/10 rounded-a p-6 mobile:p-8">
           <h2 className="text-f-d font-semibold font-hubot text-access-white mb-6">Your ROI Estimate</h2>
           <ResultsPanel outputs={submittedOutputs} />
-          {submittedOutputs.is_complete && (
-            <ExportSummary inputs={inputs} outputs={submittedOutputs} onBack={() => setSubmittedOutputs(null)} />
-          )}
         </div>
       )}
 
-      {/* Footer CTA */}
-      {submittedOutputs?.is_complete && (
-        <div className="mt-8 text-center">
-          <p className="text-f-f text-text-muted font-syne mb-4">
-            Ready to validate these numbers with your specific environment?
-          </p>
-          <a
-            href="https://www.netwrix.com/identity-recovery.html"
-            onClick={() => track('cta_clicked', { location: 'footer' })}
-            className="inline-flex items-center gap-2 bg-beacon-green hover:bg-beacon-green/80 text-nightwatch font-semibold font-syne text-f-f px-8 py-3.5 rounded-a transition-standard"
-          >
-            Talk to an Identity Recovery Expert
-          </a>
-        </div>
-      )}
     </div>
   );
 }

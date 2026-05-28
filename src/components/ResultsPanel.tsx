@@ -71,7 +71,7 @@ function SimpleTCORow({ label, value, note, bold = false }: { label: string; val
 function MetricCard({ label, value, sub, green = false }: { label: string; value: string; sub?: string; green?: boolean }) {
   return (
     <div className="bg-access-white/5 border border-access-white/10 rounded-a p-5 flex flex-col min-h-[120px]">
-      <div className={`text-f-b font-bold font-hubot mb-2 ${green ? 'text-beacon-green' : 'text-access-white'}`}>
+      <div className={`text-[1.375rem] font-bold font-hubot mb-2 leading-tight ${green ? 'text-beacon-green' : 'text-access-white'}`}>
         {value}
       </div>
       <div className="text-f-f font-semibold text-access-white font-syne leading-snug">{label}</div>
@@ -245,7 +245,7 @@ export default function ResultsPanel({ outputs }: Props) {
 
       {/* Probability note */}
       <div className="mb-6 bg-access-white/5 border border-access-white/10 rounded-a px-4 py-3 flex items-start gap-3">
-        <span className="text-access-white/40 text-f-f mt-0.5">ℹ</span>
+        <span className="text-access-white/40 text-f-f leading-relaxed">ℹ</span>
         <p className="text-f-g text-access-white/50 font-syne leading-relaxed">
           Annual value is probability-adjusted at <span className="text-access-white/80 font-semibold">{(dollars.incident_probability * 100).toFixed(0)}% annual incident probability</span> — the estimated likelihood of a major AD compromise requiring forest-level recovery in any given year, deliberately conservative relative to broader ransomware exposure (59% of organizations, Sophos 2024; 44% of breaches, Verizon DBIR 2025). Adjust this in <span className="text-access-white/80 font-semibold">detailed assumptions</span> if your risk profile differs.
         </p>
@@ -253,7 +253,7 @@ export default function ResultsPanel({ outputs }: Props) {
 
       {/* Cost per day */}
       <div className="mb-6 bg-access-white/5 border border-access-white/10 rounded-a px-4 py-3 flex items-start gap-3">
-        <span className="text-access-white/40 text-f-f mt-0.5">$</span>
+        <span className="text-access-white/40 text-f-f leading-relaxed">$</span>
         <p className="text-f-g text-access-white/50 font-syne leading-relaxed">
           <>Your non-license overhead runs <span className="text-access-white/80 font-semibold">{fmt((outputs.tco ? outputs.tco.non_license_annual_subtotal : assumptions.product_annual_cost_usd) / 365, 'currency')}/day</span> — covering infrastructure, storage, staffing, and restore testing.</>
         </p>
