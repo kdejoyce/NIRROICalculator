@@ -20,55 +20,42 @@ import '../styles/global.css';
     />
     <link rel="stylesheet" href="/print.css" media="print" />
   </head>
-  <body class="bg-access-white min-h-screen">
-    <!-- Nav -->
-    <nav class="bg-access-white border-b border-black sticky top-0 z-20">
-      <div class="max-w-5xl mx-auto px-4 mobile:px-6 tabletm:px-8 py-4 flex items-center justify-between">
-        <a href="https://netwrix.com" aria-label="Netwrix" style="display:block;width:130px;flex-shrink:0;">
-          <svg width="127" height="27" viewBox="0 0 127 27" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;object-fit:contain;">
-            <g clip-path="url(#clip0_4309_2532)">
-              <path d="M4.73582 11.0159H0V26.099H4.73582V11.0159Z" fill="#00050A"/>
-              <path d="M20.1402 13.9465V26.0988H15.4043V11.0157H4.73535C4.75322 10.98 4.77109 10.9442 4.78896 10.8906C5.23574 10.0328 5.82548 9.24647 6.54032 8.5495C7.27304 7.8704 8.13084 7.3164 9.11375 6.92324C10.0967 6.53008 11.2047 6.3335 12.3841 6.3335C13.5636 6.3335 14.5287 6.49434 15.4758 6.79814C16.423 7.10195 17.2629 7.60234 17.9599 8.22782C18.6569 8.87118 19.193 9.67538 19.5683 10.6047C19.9436 11.534 20.1402 12.6598 20.1402 13.9108V13.9465Z" fill="#00050A"/>
-              <path d="M73.1456 26.0991L68.1239 12.678L62.977 26.0991H58.6522L51.2715 6.7627H56.4541L60.9576 20.0051L65.5147 6.7627H70.8045L75.1829 19.9872L79.8115 6.7627H85.012L77.4704 26.0991H73.1456Z" fill="#00050A"/>
-              <path d="M90.6948 6.7627H85.959V26.0991H90.6948V6.7627Z" fill="#00050A"/>
-              <path d="M97.4677 6.7625V11.3911H90.6768C90.6946 11.3554 90.7125 11.3196 90.7304 11.266C91.1771 10.4082 91.7669 9.62186 92.4817 8.92489C93.2144 8.24579 94.0723 7.69179 95.0552 7.29863C95.7879 7.01269 96.6099 6.81611 97.4677 6.74463V6.7625Z" fill="#00050A"/>
-              <path d="M98.7012 26.0991V6.7627H103.473V26.0991H98.7012Z" fill="#00050A"/>
-              <path d="M103.473 0.900879H98.7012V5.67244H103.473V0.900879Z" fill="#00050A"/>
-              <path d="M126.187 6.7627H120.557L115.464 12.9997L110.353 6.7627H104.724L112.64 16.4309L104.724 26.0991H110.353L115.464 19.8621L120.557 26.0991H126.187L118.27 16.4309L126.187 6.7627Z" fill="#00050A"/>
-              <path d="M50.3787 10.7299V6.76257H45.5356V0.900879H40.7998V20.0586C40.7998 23.4005 43.4983 26.099 46.8402 26.099H50.3787V21.3632H45.5356V10.7299H50.3787Z" fill="#00050A"/>
-              <path d="M21.749 12.8029V19.1292C21.749 22.9894 24.8765 26.0989 28.7187 26.0989H36.8322V21.3631H26.4848V18.0212H39.209V12.785C39.209 9.44315 36.5105 6.74463 33.1686 6.74463H27.7894C24.4475 6.74463 21.749 9.44315 21.749 12.785V12.8029ZM34.4553 14.0717H26.467V10.7299H34.4553V14.0717Z" fill="#00050A"/>
-            </g>
-            <defs>
-              <clipPath id="clip0_4309_2532">
-                <rect width="126.187" height="25.1981" fill="white" transform="translate(0 0.900879)"/>
-              </clipPath>
-            </defs>
-          </svg>
-        </a>
-        <a
-          href="https://netwrix.com/en/products/identity-recovery-software/"
-          class="text-f-g font-semibold font-syne text-text-muted hover:text-nightwatch transition-standard"
-        >
-          Learn about Netwrix Identity Recovery →
-        </a>
-      </div>
-    </nav>
+  <body class="bg-surface-subtle min-h-screen">
 
-    <!-- Calculator island -->
+    <!-- Page intro -->
     <main>
+      <div class="max-w-[760px] mx-auto px-4 mobile:px-6 pt-10 pb-0">
+        <div class="mb-8">
+          <p class="text-[0.72rem] font-semibold font-syne text-vigilant-blue uppercase tracking-[0.08em] mb-2">
+            Identity Recovery
+          </p>
+          <h1 class="font-hubot font-bold text-nightwatch leading-[1.15] tracking-[-0.02em] mb-[0.625rem]" style="font-size: clamp(1.5rem, 3.5vw, 2.25rem)">
+            How much could you save with faster AD recovery?
+          </h1>
+          <p class="text-[0.9rem] text-text-muted font-syne leading-[1.6] max-w-[560px] mb-3">
+            Estimate your financial impact from reducing forest-level Active Directory recovery time after a ransomware, wiper, or domain compromise event.
+          </p>
+          <a
+            href="https://netwrix.com/en/products/identity-recovery-software/"
+            class="inline-block text-[0.875rem] font-semibold font-syne text-vigilant-blue hover:opacity-75 transition-standard"
+          >
+            Learn about Netwrix Identity Recovery →
+          </a>
+        </div>
+      </div>
+
+      <!-- Calculator island -->
       <ROICalculator client:only="react" />
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-black mt-16">
-      <div class="max-w-5xl mx-auto px-4 mobile:px-6 tabletm:px-8 py-8 flex flex-col mobile:flex-row justify-between items-center gap-4">
-        <p class="text-f-g text-text-faint font-syne">
-          © {new Date().getFullYear()} Netwrix Corporation. All rights reserved.
-        </p>
-        <p class="text-f-g text-text-faint font-syne max-w-lg text-center mobile:text-right">
-          This document is for informational purposes only and does not constitute a commitment from Netwrix Corporation of any return on investment from the Netwrix products or services. Netwrix hereby disclaims all warranties related to the information in this document, whether express or implied, including but not limited to the implied warranties of merchantability and fitness for a particular purpose. This document does not provide you with any legal rights whatsoever including, without limitation, with respect to the information you submitted to generate an estimated return on investment or the estimated return on investment generated by that information. You may copy and use this document only for your internal, reference purposes.
-        </p>
-      </div>
+    <footer class="max-w-[760px] mx-auto px-4 mobile:px-6 py-8">
+      <p class="text-[0.75rem] text-text-faint font-syne leading-[1.6] mb-3">
+        This document is for informational purposes only and does not constitute a commitment from Netwrix Corporation of any return on investment from the Netwrix products or services. Netwrix hereby disclaims all warranties related to the information in this document, whether express or implied, including but not limited to the implied warranties of merchantability and fitness for a particular purpose. This document does not provide you with any legal rights whatsoever including, without limitation, with respect to the information you submitted to generate an estimated return on investment or the estimated return on investment generated by that information. You may copy and use this document only for your internal, reference purposes.
+      </p>
+      <p class="text-[0.75rem] text-text-faint font-syne">
+        © {new Date().getFullYear()} Netwrix Corporation. All rights reserved.
+      </p>
     </footer>
   </body>
 </html>

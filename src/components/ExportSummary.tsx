@@ -79,7 +79,7 @@ function sectionHead(title: string): string {
   return `<h2 style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:${C.blue};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">${title}</h2>`;
 }
 
-function buildPrintHTML(
+export function buildPrintHTML(
   form: { name: string; email: string; company: string },
   inputs: ROIInputs,
   outputs: ROIOutputs,
